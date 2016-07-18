@@ -1,0 +1,60 @@
+﻿body {
+    padding-bottom: 20px;
+}
+
+/* Set padding to keep content from hitting the edges */
+.body-content {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+/* Override the default bootstrap behavior where horizontal description lists 
+   will truncate terms that are too long to fit in the left column 
+*/
+.dl-horizontal dt {
+    white-space: normal;
+}
+
+/* Set width on the form input elements since they're 100% wide by default */
+input,
+select,
+textarea {
+    max-width: 280px;
+}
+
+textarea {
+    width: 100%;
+     max-width: 100%;
+     height: 100%;
+     max-height: 100%;
+     -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+     -moz-box-sizing: border-box;    /* Firefox, other Gecko */
+     box-sizing: border-box;         /* Opera/IE 8+ */
+}
+
+.glyphicon-plus{
+    color: green;
+}
+
+.glyphicon-minus {
+    color: red;
+}
+
+#userStats {
+    font-size: 75px;
+    vertical-align: middle;
+}
+
+#userStats .glyphicon-arrow-left, 
+#userStats .glyphicon-arrow-right, 
+#userStats .glyphicon-remove {
+    font-size: 150px;
+}
+
+.finalCountdown {
+    color: red;
+}
+
+#challengeText {
+    font-size: 16px;
+}

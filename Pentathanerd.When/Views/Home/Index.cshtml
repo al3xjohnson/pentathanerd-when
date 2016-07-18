@@ -1,0 +1,129 @@
+﻿@{
+    ViewBag.Title = "Pentathanerd";
+}
+@section Scripts
+{
+    @Scripts.Render("~/bundles/signalR")
+    @Scripts.Render("/signalr/hubs")
+    @Scripts.Render("~/Scripts/gameController.js")
+    @Scripts.Render("~/Scripts/gamePlayHub.js")
+}
+<hr />
+<div class="row" id="userStats">
+    <div class="col-md-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="pull-left">
+                        <h3>Time Remaining</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="pull-left">
+                        <span id="countdownTimerText">00:00</span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="pull-left">
+                        <h3>Score</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="pull-left">
+                        <span id="score">0</span>
+                        <i id="scoreChangeIndicator" class="glyphicon"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-2" style="padding-top: 75px;">
+        <i id="turnIndicator" class="glyphicon glyphicon-remove"></i>
+    </div>
+
+    <div class="col-md-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="pull-right">
+                        <h3>Completed</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="pull-right">
+                        <span id="completionPercentage">0</span>%
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="pull-right">
+                        <h3>Accuracy</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="pull-right">
+                        <span id="hitPercentage">0</span>%
+                        <i id="hitPercentageChangeIndicator" class="glyphicon"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<hr/>
+
+<div class="row">
+    <div class="col-md-12" style="border: 1px solid black; padding: 15px; border-radius: 5px;">
+        <div id="challengeText" value="">
+            <span id="correctLetters" style="background-color: lightgrey;"></span><span id="remainingLetters"></span>
+        </div>
+    </div>
+</div>
+
+<div id="gameControls" style="display: none">
+    <hr />
+    <div class="row">
+        <div class="col-md-offset-5 col-md-1">
+            <input class="btn btn-success pull-right" type="button" id="startGameButton" value="Start" disabled="disabled" />
+        </div>
+        <div class="col-md-1">
+            <input class="btn btn-info pull-left" type="button" id="resetGameButton" value="Reset" disabled="disabled" />
+        </div>
+    </div>
+</div>
+
+<div id="playerSelectionModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Pentathanerd - When</h4>
+            </div>
+            <div class="modal-body">
+                <p>Select the screen you are playing from.</p>
+            </div>
+            <div class="modal-footer">
+                <button id="leftScreenButton" type="button" class="btn btn-default pull-left" data-dismiss="modal">Left Screen</button>
+                <button id="rightScreenButton" type="button" class="btn btn-default pull right" data-dismiss="modal">Right Screen</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<audio id="soundEffectDing" src="~/Content/Ding.wav" ></audio>
+<audio id="soundEffectBeep" src="~/Content/microwave-beep.wav" ></audio>
+<audio id="soundEffectBuzzer" src="~/Content/buzzer.wav" ></audio>
+<audio id="soundEffectWinner" src="~/Content/winner-bell.wav" ></audio>
