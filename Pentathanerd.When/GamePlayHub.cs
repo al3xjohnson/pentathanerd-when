@@ -370,9 +370,16 @@ namespace Pentathanerd.When
         {
             Clients.All.resetGame();
 
-            foreach (var connectedPlayer in _connectedPlayers)
+            if (_connectedPlayers.Count == 2)
             {
-                Clients.Client(connectedPlayer.Key).showPlayerSelectionModal();
+                foreach (var connectedPlayer in _connectedPlayers)
+                {
+                    Clients.Client(connectedPlayer.Key).showPlayerSelectionModal();
+                }
+            }
+            else
+            {
+                Clients.All.showPlayerSelectionModal();
             }
             _connectedPlayers = new ConcurrentDictionary<string, PlayerStats>();
         }
