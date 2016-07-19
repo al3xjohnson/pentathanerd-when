@@ -165,5 +165,8 @@
             completionPercentage,
             score);
     }
-
+    
+    gamePlayHub.client.updateConnectedUsersCount = function(count) {
+        gameController.updateConnectedUsersCount(count);
+    }
 }(window.jQuery, gameController));

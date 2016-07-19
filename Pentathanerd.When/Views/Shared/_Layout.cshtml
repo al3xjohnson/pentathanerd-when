@@ -12,7 +12,12 @@
         @RenderBody()
         <hr />
         <footer>
-            <p>&copy; @DateTime.Now.Year - The Nerdery - Pentathanerd</p>
+            <div class="pull-left">
+                <p>&copy; @DateTime.Now.Year - The Nerdery - Pentathanerd</p>
+            </div>
+            <div class="pull-right">
+                Connected: <span id="connectedUsersText">0</span>
+            </div>
         </footer>
     </div>
 

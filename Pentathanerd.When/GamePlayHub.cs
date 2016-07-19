@@ -20,6 +20,7 @@ namespace Pentathanerd.When
 
         #region Statics
         private static IHubContext _gamePlayHub;
+        private static readonly List<string> _connectedUsers = new List<string>();
         private static ConcurrentDictionary<string, PlayerStats> _connectedPlayers = new ConcurrentDictionary<string, PlayerStats>();
         private static string _activePlayerConnectionId;
 
@@ -137,6 +138,9 @@ namespace Pentathanerd.When
         {
             InitializeGamePlayHubContext();
 
+            _connectedUsers.Add(Context.ConnectionId);
+            UpdateConnectedUsersCount();
+
             if (_connectedPlayers.Count < 2)
                 Clients.Caller.showPlayerSelectionModal();
 
@@ -153,22 +157,30 @@ namespace Pentathanerd.When
             _gamePlayHub = GlobalHost.ConnectionManager.GetHubContext<GamePlayHub>();
         }
 
+        private static void UpdateConnectedUsersCount()
+        {
+            _gamePlayHub.Clients.All.updateConnectedUsersCount(_connectedUsers.Count);
+        }
+
         public override Task OnDisconnected(bool stopCalled)
         {
             var connectionId = Context.ConnectionId;
             var connectedPlayer = _connectedPlayers.FirstOrDefault(x => x.Key == connectionId);
 
-            if (connectedPlayer.Value == null)
-                return base.OnDisconnected(stopCalled);
-
-            PlayerStats player;
-            if (connectedPlayer.Key != null)
-                _connectedPlayers.TryRemove(connectedPlayer.Key, out player);
-
-            if (_connectedPlayers.Count < 2)
+            if (connectedPlayer.Value != null)
             {
-                EndGame(false);
+
+                PlayerStats player;
+                if (connectedPlayer.Key != null)
+                    _connectedPlayers.TryRemove(connectedPlayer.Key, out player);
+
+                if (_connectedPlayers.Count < 2)
+                {
+                    EndGame(false);
+                }
             }
+            _connectedUsers.Remove(connectionId);
+            UpdateConnectedUsersCount();
 
             return base.OnDisconnected(stopCalled);
         }

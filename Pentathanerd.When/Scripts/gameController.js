@@ -246,6 +246,11 @@
             } else {
                 playerSelectionModal.modal("hide");
             }
+        },
+        updateConnectedUsersCount: function(count) {
+            var connectedUsersText = $("#connectedUsersText");
+            if (connectedUsersText)
+                connectedUsersText.text(count);
         }
     };
 
@@ -444,6 +449,9 @@
                 body.animate({ "background-color": "red" }, 50);
                 body.animate({ "background-color": "" }, 50);
             }
+        },
+        updateConnectedUsersCount: function(count) {
+            _gamePlayHelper.updateConnectedUsersCount(count);
         }
     };
 }());
