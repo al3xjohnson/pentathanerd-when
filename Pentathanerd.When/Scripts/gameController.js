@@ -97,19 +97,22 @@
 
             var percentage = parseFloat(value);
 
-            if (completionPercentage)
+            if (completionPercentage && percentage)
                 completionPercentage.text(percentage.toFixed(0));
         },
         setHitPercentage: function (value) {
             var hitPercentageText = $("#hitPercentage");
+            var percentage = parseFloat(value);
 
-            hitPercentageText.text(value);
+            if (hitPercentageText && percentage)
+                hitPercentageText.text(percentage.toFixed(2));
         },
         setScore: function (value) {
             var scoreText = $("#score");
+            var score = parseInt(value);
 
-            if (scoreText)
-                scoreText.text(value);
+            if (scoreText && score)
+                scoreText.text(score);
         },
         clearChangeIndicators: function () {
             this.updateHitPercentageChangeIndicator("clear");
@@ -122,42 +125,55 @@
             leftScreenButton.removeAttr("disabled");
             rightScreenButton.removeAttr("disabled");
         },
-        updateHitPercentage: function(hitPercentage) {
+        updateHitPercentage: function(newHitPercentage) {
             var currentPercentage = this.getHitPercentage();
 
-            this.setHitPercentage(hitPercentage);
+            this.setHitPercentage(newHitPercentage);
 
-            if (parseFloat(currentPercentage) > parseFloat(hitPercentage)) {
+            var newHitPercentageFloat = parseFloat(newHitPercentage);
+            var currentPercentageFloat = parseFloat(currentPercentage);
+            if (newHitPercentageFloat > currentPercentageFloat) {
                 this.updateHitPercentageChangeIndicator("increase");
-            } else {
+            } else if (newHitPercentageFloat < currentPercentageFloat) {
                 this.updateHitPercentageChangeIndicator("decrease");
+            } else {
+                this.updateHitPercentageChangeIndicator("clear");
             }
         },
         getHitPercentage: function () {
-            return $("#hitPercentage").text();
+            var hitPercentage = $("#hitPercentage");
+
+            if (hitPercentage)
+                return hitPercentage.text();
+            else {
+                return 0;
+            }
         },
         updateHitPercentageChangeIndicator: function (action) {
             var hitPercentageChangeIndicator = $("#hitPercentageChangeIndicator");
             if (hitPercentageChangeIndicator) {
                 if (action === "increase") {
-                    hitPercentageChangeIndicator.removeClass("glyphicon-plus");
-                    hitPercentageChangeIndicator.addClass("glyphicon-minus");
-                } else if (action === "decrease") {
                     hitPercentageChangeIndicator.removeClass("glyphicon-minus");
                     hitPercentageChangeIndicator.addClass("glyphicon-plus");
+                } else if (action === "decrease") {
+                    hitPercentageChangeIndicator.removeClass("glyphicon-plus");
+                    hitPercentageChangeIndicator.addClass("glyphicon-minus");
                 } else {
                     hitPercentageChangeIndicator.removeClass("glyphicon-plus");
                     hitPercentageChangeIndicator.removeClass("glyphicon-minus");
                 }
             }
         },
-        updateScore: function (score) {
+        updateScore: function (newScore) {
             var currentScore = this.getScore();
-            this.setScore(score);
+            this.setScore(newScore);
 
-            if (parseFloat(currentScore) > parseFloat(score)) {
+            var newScoreFloat = parseFloat(newScore);
+            var currentScoreFloat = parseFloat(currentScore);
+
+            if (newScoreFloat > currentScoreFloat) {
                 this.updateScoreChangeIndicator("increase");
-            } else {
+            } else if (newScoreFloat < currentScoreFloat) {
                 this.updateScoreChangeIndicator("decrease");
             }
         },
@@ -174,11 +190,11 @@
             var scoreChangeIndicator = $("#scoreChangeIndicator");
             if (scoreChangeIndicator) {
                 if (action === "increase") {
-                    scoreChangeIndicator.removeClass("glyphicon-plus");
-                    scoreChangeIndicator.addClass("glyphicon-minus");
-                } else if (action === "decrease") {
                     scoreChangeIndicator.removeClass("glyphicon-minus");
                     scoreChangeIndicator.addClass("glyphicon-plus");
+                } else if (action === "decrease") {
+                    scoreChangeIndicator.removeClass("glyphicon-plus");
+                    scoreChangeIndicator.addClass("glyphicon-minus");
                 } else {
                     scoreChangeIndicator.removeClass("glyphicon-plus");
                     scoreChangeIndicator.removeClass("glyphicon-minus");
