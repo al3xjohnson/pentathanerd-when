@@ -61,9 +61,9 @@
             e.preventDefault();
             if (charCode === 32) {
                 // Trigger the keypress event to record the space keypress
-                var event = jQuery.Event("keypress");
-                event.which = charCode;
-                $(document).trigger(event);
+                var keyPressEvent = jQuery.Event("keypress");
+                keyPressEvent.which = charCode;
+                $(document).trigger(keyPressEvent);
             }
         }
     }
