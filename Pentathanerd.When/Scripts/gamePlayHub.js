@@ -56,8 +56,15 @@
         var charCode = e.which;
 
         // Prevent backspace from navigating away from the page
-        if (charCode === 8) {
+        // and space from scrolling
+        if (charCode === 8 || charCode === 32) {
             e.preventDefault();
+            if (charCode === 32) {
+                // Trigger the keypress event to record the space keypress
+                var event = jQuery.Event("keypress");
+                event.which = charCode;
+                $(document).trigger(event);
+            }
         }
     }
 
