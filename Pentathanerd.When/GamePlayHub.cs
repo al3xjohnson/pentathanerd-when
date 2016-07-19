@@ -13,8 +13,8 @@ namespace Pentathanerd.When
         #region Constants
         private const double GameTimeInMinues = 3.5;
         private const int AvailableScoreBeforeBonus = 1200;
-        private const int LowerBoundPlayTimeInSeconds = 3;
-        private const int UpperBoundPlayTimeInSeconds = 10;
+        private const int LowerBoundPlayTimeInSeconds = 2;
+        private const int UpperBoundPlayTimeInSeconds = 6;
         private const int KeyPressThresholdPerTurn = 5;
         #endregion
 
@@ -117,7 +117,13 @@ namespace Pentathanerd.When
                 if (_gameTime == default(TimeSpan))
                 {
                     var minutes = Convert.ToInt32(Math.Floor(GameTimeInMinues));
-                    var seconds = Convert.ToInt32((GameTimeInMinues % minutes) * 60);
+                    int seconds;
+                    if (minutes != 0)
+                        seconds = Convert.ToInt32((GameTimeInMinues % minutes) * 60);
+                    else
+                    {
+                        seconds = Convert.ToInt32(GameTimeInMinues * 60);
+                    }
 
                     _gameTime = new TimeSpan(0, minutes, seconds);
                 }
@@ -370,16 +376,9 @@ namespace Pentathanerd.When
         {
             Clients.All.resetGame();
 
-            if (_connectedPlayers.Count == 2)
+            foreach (var connectedPlayer in _connectedPlayers)
             {
-                foreach (var connectedPlayer in _connectedPlayers)
-                {
-                    Clients.Client(connectedPlayer.Key).showPlayerSelectionModal();
-                }
-            }
-            else
-            {
-                Clients.All.showPlayerSelectionModal();
+                Clients.Client(connectedPlayer.Key).showPlayerSelectionModal();
             }
             _connectedPlayers = new ConcurrentDictionary<string, PlayerStats>();
         }
