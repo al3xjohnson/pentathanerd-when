@@ -1,6 +1,6 @@
 ﻿namespace Pentathanerd.When
 {
-    public class PlayerStats
+    internal class PlayerStats
     {
         public int Hits { get; set; }
 

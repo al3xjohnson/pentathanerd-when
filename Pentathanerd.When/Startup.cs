@@ -4,7 +4,7 @@ using Owin;
 [assembly: OwinStartup(typeof(Pentathanerd.When.Startup))]
 namespace Pentathanerd.When
 {
-    public class Startup
+    internal class Startup
     {
         public void Configuration(IAppBuilder app)
         {

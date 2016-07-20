@@ -1,6 +1,6 @@
 ﻿namespace Pentathanerd.When
 {
-    public enum ScreenLocation 
+    internal enum ScreenLocation 
     {
         Left,
         Right

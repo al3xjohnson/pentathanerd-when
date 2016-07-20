@@ -3,7 +3,7 @@ using System.Timers;
 
 namespace Pentathanerd.When
 {
-    public class TimerExtension : Timer
+    internal class TimerExtension : Timer
     {
         private DateTime _endTime;
 
