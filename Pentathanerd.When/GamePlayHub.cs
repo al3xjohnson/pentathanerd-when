@@ -64,13 +64,17 @@ namespace Pentathanerd.When
         {
             get
             {
+                double retValue = 0;
                 var totalHits = TotalHits;
                 var totalKeyPresses = totalHits + TotalMisses;
-                var hitFraction = totalHits / totalKeyPresses;
-                var hitPercentage = hitFraction * 100;
-                var roundedHitPercentage = Math.Round(hitPercentage, 2);
+                if (totalKeyPresses > 0)
+                {
+                    var hitFraction = totalHits / totalKeyPresses;
+                    var hitPercentage = hitFraction * 100;
+                    retValue = Math.Round(hitPercentage, 2);
+                }
 
-                return roundedHitPercentage > 0 ? roundedHitPercentage : 0;
+                return retValue > 0 ? retValue : 0;
             }
         }
 
@@ -78,10 +82,15 @@ namespace Pentathanerd.When
         {
             get
             {
-                var completionFraction = TotalHits / _challengeText.Length;
-                var completionPercent = completionFraction * 100;
+                double retValue = 0;
+                if (_challengeText.Length > 0)
+                {
+                    var completionFraction = TotalHits / _challengeText.Length;
+                    var completionPercent = completionFraction * 100;
+                    retValue = Math.Round(completionPercent, 2);
+                }
 
-                return Math.Round(completionPercent, 2);
+                return retValue;
             }
         }
 
