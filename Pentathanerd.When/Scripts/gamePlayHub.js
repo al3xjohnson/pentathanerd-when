@@ -14,6 +14,7 @@
     function initializeButtons() {
         initializeStartGameButton();
         initializeResetGameButton();
+        initializeSubmitTeamNameButton();
         initializeLeftScreenButton();
         initializeRightScreenButton();
     }
@@ -31,6 +32,19 @@
         resetGameButton.click(function () {
             gamePlayHub.server.resetGame();
         });
+    }
+
+    function initializeSubmitTeamNameButton() {
+        var submitTeamNameButton = $("#submitTeamName");
+        if (submitTeamNameButton)
+            submitTeamNameButton.click(function() {
+                var teamNameInput = $("#teamNameInput");
+                var teamName = "";
+                if (teamNameInput)
+                    teamName = teamNameInput.val();
+
+                gamePlayHub.server.setTeamName(teamName);
+            });
     }
 
     function initializeLeftScreenButton() {
@@ -52,6 +66,10 @@
     }
     
     document.onkeydown = function (e) {
+        var elementId = $(e.target).attr("id");
+        if (elementId === "teamNameInput") {
+            return true;
+        }
         e = e || window.event;
         var charCode = e.which;
 
@@ -69,6 +87,10 @@
     }
 
     document.onkeypress = function(e) {
+        var elementId = $(e.target).attr("id");
+        if (elementId === "teamNameInput") {
+            return true;
+        }
         if (!gameController.isGameActive()) {
             return false;
         }
@@ -156,17 +178,26 @@
         gamePlayHub.server.setSelectedScreens();
     }
 
-    gamePlayHub.client.updateDisplayForLateComer = function (timeRemaining, challengeTextValue, iterator, screenSelected, hitPercentage, completionPercentage, score) {
+    gamePlayHub.client.updateDisplayForLateComer = function (timeRemaining, challengeTextValue, iterator, screenSelected, hitPercentage, completionPercentage, score, teamName) {
         gameController.updateDisplayForLateComer(timeRemaining,
             challengeTextValue,
             iterator,
             screenSelected,
             hitPercentage,
             completionPercentage,
-            score);
+            score,
+            teamName);
     }
     
     gamePlayHub.client.updateConnectedUsersCount = function(count) {
         gameController.updateConnectedUsersCount(count);
+    }
+
+    gamePlayHub.client.showTeamNameSelectionModal = function() {
+        gameController.showTeamNameSelectionModal();
+    }
+
+    gamePlayHub.client.setTeamName = function(name) {
+        gameController.setTeamName(name);
     }
 }(window.jQuery, gameController));

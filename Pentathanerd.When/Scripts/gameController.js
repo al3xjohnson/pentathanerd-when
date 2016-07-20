@@ -247,10 +247,10 @@
                 playerSelectionModal.modal("hide");
             }
         },
-        updateConnectedUsersCount: function(count) {
-            var connectedUsersText = $("#connectedUsersText");
-            if (connectedUsersText)
-                connectedUsersText.text(count);
+        setTeamName: function(name) {
+            var teamName = $("#teamName");
+            if (teamName)
+                teamName.text(name);
         }
     };
 
@@ -378,7 +378,8 @@
             screenSelected,
             hitPercentage,
             completionPercentage,
-            score) {
+            score,
+            teamName) {
             this.loadChallengeText(challengeTextValue);
             this.updateTextValues(iterator);
             this.updateTurnIndicator(screenSelected);
@@ -387,6 +388,7 @@
             _gamePlayHelper.updateHitPercentage(hitPercentage);
             _gamePlayHelper.setCompletionPercentage(completionPercentage);
             _gamePlayHelper.updateScore(score);
+            _gamePlayHelper.setTeamName(teamName);
         },
         loadChallengeText: function(challengeText) {
             _gamePlayHelper.setChallengeTextValue(challengeText);
@@ -451,7 +453,17 @@
             }
         },
         updateConnectedUsersCount: function(count) {
-            _gamePlayHelper.updateConnectedUsersCount(count);
+            var connectedUsersText = $("#connectedUsersText");
+            if (connectedUsersText)
+                connectedUsersText.text(count);
+        },
+        showTeamNameSelectionModal: function() {
+            var teamNameSelectionModal = $("#teamNameSelectionModal");
+            if (teamNameSelectionModal)
+                teamNameSelectionModal.modal("show");
+        },
+        setTeamName: function(name) {
+            _gamePlayHelper.setTeamName(name);
         }
     };
 }());

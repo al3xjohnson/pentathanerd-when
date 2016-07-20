@@ -8,7 +8,15 @@
     @Scripts.Render("~/Scripts/gameController.js")
     @Scripts.Render("~/Scripts/gamePlayHub.js")
 }
-<hr />
+
+<div class="row">
+    <div class="text-center">
+        <h2><span id="teamName"></span></h2>
+    </div>
+</div>
+
+<hr/>
+
 <div class="row" id="userStats">
     <div class="col-md-5">
         <div class="container">
@@ -44,7 +52,7 @@
         </div>
     </div>
 
-    <div class="col-md-2" style="padding-top: 75px;">
+    <div class="col-md-2 text-center" style="padding-top: 75px;">
         <i id="turnIndicator" class="glyphicon glyphicon-remove"></i>
     </div>
 
@@ -123,6 +131,26 @@
     </div>
 </div>
 
+
+<div id="teamNameSelectionModal" class="modal" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Pentathanerd - When</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="teamNameInput">Enter your team name:</label>
+                    <input id="teamNameInput" class="form-control" type="text"/>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="submitTeamName" type="button" class="btn btn-success pull-right" data-dismiss="modal">Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
 <audio id="soundEffectDing" src="~/Content/Ding.wav" ></audio>
 <audio id="soundEffectBeep" src="~/Content/microwave-beep.wav" ></audio>
 <audio id="soundEffectBuzzer" src="~/Content/buzzer.wav" ></audio>

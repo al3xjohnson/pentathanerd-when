@@ -16,6 +16,7 @@ namespace Pentathanerd.When
         private const int LowerBoundPlayTimeInSeconds = 2;
         private const int UpperBoundPlayTimeInSeconds = 6;
         private const int KeyPressThresholdPerTurn = 5;
+        private const string DefaultTeamName = "NoNameGang";
         #endregion
 
         #region Statics
@@ -23,6 +24,7 @@ namespace Pentathanerd.When
         private static readonly List<string> _connectedUsers = new List<string>();
         private static ConcurrentDictionary<string, PlayerStats> _connectedPlayers = new ConcurrentDictionary<string, PlayerStats>();
         private static string _activePlayerConnectionId;
+        private static string _teamName;
 
         private static string _challengeText;
         private static bool _gameIsActive;
@@ -146,7 +148,7 @@ namespace Pentathanerd.When
 
             if (_gameIsActive)
             {
-                Clients.Caller.updateDisplayForLateComer(GameClock.SecondsLeft, _challengeText, TotalHits, CurrentScreenLocation.ToString().ToLower(), HitPercentage, CompletionPercentage, Score);
+                Clients.Caller.updateDisplayForLateComer(GameClock.SecondsLeft, _challengeText, TotalHits, CurrentScreenLocation.ToString().ToLower(), HitPercentage, CompletionPercentage, Score, _teamName);
             }
 
             return base.OnConnected();
@@ -214,6 +216,7 @@ namespace Pentathanerd.When
             _gameIsActive = false;
             _activePlayerConnectionId = string.Empty;
             _challengeText = string.Empty;
+            _teamName = string.Empty;
 
             StopArrowTimer();
             StopGameClock();
@@ -254,7 +257,10 @@ namespace Pentathanerd.When
             {
                 foreach (var connectedPlayer in _connectedPlayers)
                 {
-                    Clients.Client(connectedPlayer.Key).enableStartGameButton();
+                    if (connectedPlayer.Value.ScreenLocation == ScreenLocation.Left)
+                    {
+                        Clients.Client(connectedPlayer.Key).showTeamNameSelectionModal();
+                    }
                 }
             }
         }
@@ -283,6 +289,31 @@ namespace Pentathanerd.When
         private void SetScreenSelectedOnAllClients(string location)
         {
             Clients.All.setScreenSelected(location.ToLower());
+        }
+
+        public void SetTeamName(string name)
+        {
+            if (!ConnectionIdBelongsToPlayer(Context.ConnectionId))
+                return;
+
+            if (string.IsNullOrEmpty(name))
+                name = DefaultTeamName;
+
+            _teamName = name;
+
+            Clients.All.setTeamName(_teamName);
+
+            foreach (var connectedPlayer in _connectedPlayers)
+            {
+                Clients.Client(connectedPlayer.Key).enableStartGameButton();
+            }
+        }
+
+        private static bool ConnectionIdBelongsToPlayer(string connectionId)
+        {
+            var connectedPlayer = _connectedPlayers.FirstOrDefault(x => x.Key == connectionId);
+
+            return connectedPlayer.Value != null;
         }
 
         public void StartGame()
@@ -405,7 +436,7 @@ namespace Pentathanerd.When
 
             var player = connectedPlayer.Value;
 
-            lock (connectedPlayer.Value)
+            lock (player)
             {
                 if (correct && _activePlayerConnectionId == connectionId)
                 {
