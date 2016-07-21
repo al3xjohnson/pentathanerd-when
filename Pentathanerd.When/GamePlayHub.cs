@@ -11,7 +11,7 @@ namespace Pentathanerd.When
     public class GamePlayHub : Hub
     {
         #region Constants
-        private const double GameTimeInMinues = 3.5;
+        private const int AverageCharactersPerMinute = 195;
         private const int AvailableScoreBeforeBonus = 1200;
         private const int LowerBoundPlayTimeInSeconds = 2;
         private const int UpperBoundPlayTimeInSeconds = 6;
@@ -119,27 +119,6 @@ namespace Pentathanerd.When
                     }
                 }
                 return screenLocation;
-            }
-        }
-
-        private static TimeSpan GameTime
-        {
-            get
-            {
-                if (_gameTime == default(TimeSpan))
-                {
-                    var minutes = Convert.ToInt32(Math.Floor(GameTimeInMinues));
-                    int seconds;
-                    if (minutes != 0)
-                        seconds = Convert.ToInt32((GameTimeInMinues % minutes) * 60);
-                    else
-                    {
-                        seconds = Convert.ToInt32(GameTimeInMinues * 60);
-                    }
-
-                    _gameTime = new TimeSpan(0, minutes, seconds);
-                }
-                return _gameTime;
             }
         }
         #endregion
@@ -334,19 +313,34 @@ namespace Pentathanerd.When
                 return;
 
             _gameIsActive = true;
+            LoadChallengeText();
+            SetGameTime();
             InitializeGameClock();
             InitializeArrowTimer();
             SetStartingPlayer();
-            LoadChallengeText();
             SetIntervalForCurrentPlayer();
             
             GameClock.Start();
-            Clients.All.startGame(GameTime.TotalSeconds);
+            Clients.All.startGame(_gameTime.TotalSeconds);
+        }
+
+        private void LoadChallengeText()
+        {
+            _challengeText = ChallengeTextLibrary.GetRandomChallengeText();
+            Clients.All.loadChallengeText(_challengeText);
+        }
+
+        private static void SetGameTime()
+        {
+            const double charactersPerMillesecond = AverageCharactersPerMinute / 60.0 / 1000.0;
+            var gameTime = _challengeText.Length / charactersPerMillesecond;
+
+            _gameTime = new TimeSpan(0, 0, 0, 0, Convert.ToInt32(gameTime));
         }
 
         private static void InitializeGameClock()
         {
-            GameClock = new TimerExtension(GameTime.TotalMilliseconds);
+            GameClock = new TimerExtension(_gameTime.TotalMilliseconds);
             GameClock.Elapsed += GameClockOnElapsed;
         }
 
@@ -416,12 +410,6 @@ namespace Pentathanerd.When
 
             var activePlayer = (connectionIds.ToArray())[startingIndex];
             UpdatePlayersTurn(activePlayer);
-        }
-
-        private void LoadChallengeText()
-        {
-            _challengeText = ChallengeTextLibrary.GetRandomChallengeText();
-            Clients.All.loadChallengeText(_challengeText);
         }
 
         public void ResetGame()
