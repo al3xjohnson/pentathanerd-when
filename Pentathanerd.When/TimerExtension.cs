@@ -12,6 +12,11 @@ namespace Pentathanerd.When
             get { return (_endTime - DateTime.Now).TotalSeconds; }
         }
 
+        public double IntervalInSeconds
+        {
+            get { return Interval / 1000; }
+        }
+
         public TimerExtension()
         {
             Elapsed += OnElapsed;

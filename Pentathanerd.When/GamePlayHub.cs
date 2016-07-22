@@ -10,119 +10,22 @@ namespace Pentathanerd.When
 {
     public class GamePlayHub : Hub
     {
-        private const int AverageCharactersPerMinute = 195;
-        private const int AvailableScoreBeforeBonus = 1200;
-        private const int LowerBoundPlayTimeInSeconds = 2;
-        private const int UpperBoundPlayTimeInSeconds = 6;
-        private const int KeyPressThresholdPerTurn = 5;
-        private const string DefaultTeamName = "NoNameGang";
+        private static IHubContext GamePlayHubContext => GlobalHost.ConnectionManager.GetHubContext<GamePlayHub>();
+        private static GameHelper _gameHelper;
 
-        private static IHubContext _gamePlayHub;
         private static readonly List<string> _connectedUsers = new List<string>();
         private static ConcurrentDictionary<string, PlayerStats> _connectedPlayers = new ConcurrentDictionary<string, PlayerStats>();
-        private static string _activePlayerConnectionId;
-        private static string _teamName;
 
-        private static string _challengeText;
         private static bool _gameIsActive;
-        private static TimeSpan _gameTime;
+        private static string _teamName;
+        private static string _challengeText;
+        private static string _activePlayerConnectionId;
 
         private static Timer ArrowTimer { get; set; }
-
         private static TimerExtension GameClock { get; set; }
-
-        private static double TotalHits
-        {
-            get
-            {
-                double totalHits = 0;
-                foreach (var connectedPlayer in _connectedPlayers)
-                {
-                    totalHits += connectedPlayer.Value.Hits;
-                }
-                return totalHits;
-            }
-        }
-
-        private static double TotalMisses
-        {
-            get
-            {
-                double totalMisses = 0;
-                foreach (var connectedPlayer in _connectedPlayers)
-                {
-                    totalMisses += connectedPlayer.Value.Misses;
-                }
-                return totalMisses;
-            }
-        }
-
-        private static double HitPercentage
-        {
-            get
-            {
-                double retValue = 0;
-                var totalHits = TotalHits;
-                var totalKeyPresses = totalHits + TotalMisses;
-                if (totalKeyPresses > 0)
-                {
-                    var hitFraction = totalHits / totalKeyPresses;
-                    var hitPercentage = hitFraction * 100;
-                    retValue = Math.Round(hitPercentage, 2);
-                }
-
-                return retValue > 0 ? retValue : 0;
-            }
-        }
-
-        private static double CompletionPercentage
-        {
-            get
-            {
-                double retValue = 0;
-                if (_challengeText.Length > 0)
-                {
-                    var completionFraction = TotalHits / _challengeText.Length;
-                    var completionPercent = completionFraction * 100;
-                    retValue = Math.Round(completionPercent, 2);
-                }
-
-                return retValue;
-            }
-        }
-
-        private static double Score
-        {
-            get
-            {
-                var totalScorePercentage = (HitPercentage + CompletionPercentage) / 2;
-                var score = (totalScorePercentage / 100) * AvailableScoreBeforeBonus;
-                var roundedScore = Math.Round(score, 0);
-
-                return roundedScore > 0 ? roundedScore : 0;
-            }
-        }
-
-        private static ScreenLocation CurrentScreenLocation
-        {
-            get
-            {
-                var screenLocation = ScreenLocation.Left;
-                foreach (var connectedPlayer in _connectedPlayers)
-                {
-                    if (connectedPlayer.Key == _activePlayerConnectionId)
-                    {
-                        screenLocation = connectedPlayer.Value.ScreenLocation;
-                    }
-                }
-                return screenLocation;
-            }
-        }
 
         public override Task OnConnected()
         {
-            InitializeGamePlayHubContext();
-
             _connectedUsers.Add(Context.ConnectionId);
             UpdateConnectedUsersCount();
 
@@ -131,33 +34,34 @@ namespace Pentathanerd.When
 
             if (_gameIsActive)
             {
-                Clients.Caller.updateDisplayForLateComer(GameClock.SecondsLeft, _challengeText, TotalHits, CurrentScreenLocation.ToString().ToLower(), HitPercentage, CompletionPercentage, Score, _teamName);
+                UpdateDisplayForLateComer();
             }
 
             return base.OnConnected();
         }
 
-        private static void InitializeGamePlayHubContext()
-        {
-            _gamePlayHub = GlobalHost.ConnectionManager.GetHubContext<GamePlayHub>();
-        }
-
         private static void UpdateConnectedUsersCount()
         {
-            _gamePlayHub.Clients.All.updateConnectedUsersCount(_connectedUsers.Count);
+            GamePlayHubContext.Clients.All.updateConnectedUsersCount(_connectedUsers.Count);
+        }
+
+        private void UpdateDisplayForLateComer()
+        {
+            var gameStats = _gameHelper.CalculateGameStats(_connectedPlayers);
+            var currentScreen = GameHelper.GetCurrentScreenLocation(_connectedPlayers, _activePlayerConnectionId);
+
+            Clients.Caller.updateDisplayForLateComer(GameClock.SecondsLeft, _challengeText, gameStats.TotalHits, currentScreen.ToString().ToLower(), gameStats.Accuracy, gameStats.CompletionPercentage, gameStats.Score, _teamName);
         }
 
         public override Task OnDisconnected(bool stopCalled)
         {
             var connectionId = Context.ConnectionId;
-            var connectedPlayer = _connectedPlayers.FirstOrDefault(x => x.Key == connectionId);
+            var player = GetPlayer(connectionId);
 
-            if (connectedPlayer.Value != null)
+            if (player != null)
             {
-
-                PlayerStats player;
-                if (connectedPlayer.Key != null)
-                    _connectedPlayers.TryRemove(connectedPlayer.Key, out player);
+                PlayerStats removedPlayer;
+                _connectedPlayers.TryRemove(player.ConnectionId, out removedPlayer);
 
                 if (_connectedPlayers.Count < 2)
                 {
@@ -170,6 +74,12 @@ namespace Pentathanerd.When
             return base.OnDisconnected(stopCalled);
         }
 
+        private static PlayerStats GetPlayer(string connectionId)
+        {
+            var connectedPlayer = _connectedPlayers.FirstOrDefault(x => x.Key == connectionId);
+            return connectedPlayer.Value;
+        }
+
         private static void EndGame(bool earlyWinner)
         {
             ResetGameClient(earlyWinner);
@@ -180,25 +90,25 @@ namespace Pentathanerd.When
         {
             if (earlyWinner)
             {
-                _gamePlayHub.Clients.All.endGameForEarlyWinner(GameClock.SecondsLeft);
+                GamePlayHubContext.Clients.All.endGameForEarlyWinner(GameClock.SecondsLeft);
             }
             else
             {
-                _gamePlayHub.Clients.All.endGame(_gameIsActive);
+                GamePlayHubContext.Clients.All.endGame(_gameIsActive);
             }
 
             foreach (var connectedPlayer in _connectedPlayers)
             {
-                _gamePlayHub.Clients.Client(connectedPlayer.Key).enableResetGameButton();
+                GamePlayHubContext.Clients.Client(connectedPlayer.Key).enableResetGameButton();
             }
         }
 
         private static void ResetGameValues()
         {
             _gameIsActive = false;
-            _activePlayerConnectionId = string.Empty;
-            _challengeText = string.Empty;
             _teamName = string.Empty;
+            _challengeText = string.Empty;
+            _activePlayerConnectionId = string.Empty;
 
             StopArrowTimer();
             StopGameClock();
@@ -227,8 +137,10 @@ namespace Pentathanerd.When
         public void RegisterPlayer(string location)
         {
             var screenLocation = ToScreenLocation(location);
-            _connectedPlayers.TryAdd(Context.ConnectionId, new PlayerStats
+            var connectionId = Context.ConnectionId;
+            _connectedPlayers.TryAdd(connectionId, new PlayerStats
             {
+                ConnectionId = connectionId,
                 ScreenLocation = screenLocation
             });
 
@@ -260,6 +172,11 @@ namespace Pentathanerd.When
             }
         }
 
+        private void SetScreenSelectedOnAllClients(string location)
+        {
+            Clients.All.setScreenSelected(location.ToLower());
+        }
+
         public void SetSelectedScreens()
         {
             foreach (var connectedPlayer in _connectedPlayers)
@@ -268,18 +185,14 @@ namespace Pentathanerd.When
             }
         }
 
-        private void SetScreenSelectedOnAllClients(string location)
-        {
-            Clients.All.setScreenSelected(location.ToLower());
-        }
-
         public void SetTeamName(string name)
         {
-            if (!ConnectionIdBelongsToPlayer(Context.ConnectionId))
+            var player = GetPlayer(Context.ConnectionId);
+            if (player == default(PlayerStats))
                 return;
 
             if (string.IsNullOrEmpty(name))
-                name = DefaultTeamName;
+                name = GameConfiguration.DefaultTeamName;
 
             _teamName = name;
 
@@ -289,13 +202,6 @@ namespace Pentathanerd.When
             {
                 Clients.Client(connectedPlayer.Key).enableStartGameButton();
             }
-        }
-
-        private static bool ConnectionIdBelongsToPlayer(string connectionId)
-        {
-            var connectedPlayer = _connectedPlayers.FirstOrDefault(x => x.Key == connectionId);
-
-            return connectedPlayer.Value != null;
         }
 
         public void StartGame()
@@ -308,14 +214,14 @@ namespace Pentathanerd.When
 
             _gameIsActive = true;
             LoadChallengeText();
-            SetGameTime();
+            _gameHelper = new GameHelper(_challengeText);
             InitializeGameClock();
             InitializeArrowTimer();
             SetStartingPlayer();
             SetIntervalForCurrentPlayer();
             
             GameClock.Start();
-            Clients.All.startGame(_gameTime.TotalSeconds);
+            Clients.All.startGame(GameClock.IntervalInSeconds);
         }
 
         private void LoadChallengeText()
@@ -324,17 +230,10 @@ namespace Pentathanerd.When
             Clients.All.loadChallengeText(_challengeText);
         }
 
-        private static void SetGameTime()
-        {
-            const double charactersPerMillesecond = AverageCharactersPerMinute / 60.0 / 1000.0;
-            var gameTime = _challengeText.Length / charactersPerMillesecond;
-
-            _gameTime = new TimeSpan(0, 0, 0, 0, Convert.ToInt32(gameTime));
-        }
-
         private static void InitializeGameClock()
         {
-            GameClock = new TimerExtension(_gameTime.TotalMilliseconds);
+            var gameTime = _gameHelper.GetGameTime();
+            GameClock = new TimerExtension(gameTime.TotalMilliseconds);
             GameClock.Elapsed += GameClockOnElapsed;
         }
 
@@ -364,8 +263,8 @@ namespace Pentathanerd.When
         private static void SetIntervalForCurrentPlayer()
         {
             var random = new Random();
-            const int lowerBoundMilleseconds = LowerBoundPlayTimeInSeconds * 1000;
-            const int upperBoundMilleseconds = UpperBoundPlayTimeInSeconds * 1000;
+            var lowerBoundMilleseconds = GameConfiguration.LowerBoundTurnTimeInSeconds * 1000;
+            var upperBoundMilleseconds = GameConfiguration.UpperBoundTurnTimeInSeconds * 1000;
             var interval = random.Next(lowerBoundMilleseconds, upperBoundMilleseconds);
 
             if (ArrowTimer != null)
@@ -379,16 +278,17 @@ namespace Pentathanerd.When
         {
             if (!string.IsNullOrEmpty(_activePlayerConnectionId))
             {
-                _gamePlayHub.Clients.Client(_activePlayerConnectionId).setPlayersTurn(false);
-                _gamePlayHub.Clients.Client(_activePlayerConnectionId).flashBackground(false);
+                GamePlayHubContext.Clients.Client(_activePlayerConnectionId).setPlayersTurn(false);
+                GamePlayHubContext.Clients.Client(_activePlayerConnectionId).flashBackground(false);
             }
 
-            _gamePlayHub.Clients.Client(nextPlayerConnectionId).setPlayersTurn(true);
-            _gamePlayHub.Clients.Client(nextPlayerConnectionId).flashBackground(true);
+            GamePlayHubContext.Clients.Client(nextPlayerConnectionId).setPlayersTurn(true);
+            GamePlayHubContext.Clients.Client(nextPlayerConnectionId).flashBackground(true);
 
             _activePlayerConnectionId = nextPlayerConnectionId;
 
-            _gamePlayHub.Clients.All.flipArrow(CurrentScreenLocation.ToString().ToLower());
+            var currentScreenLocation = GameHelper.GetCurrentScreenLocation(_connectedPlayers, _activePlayerConnectionId);
+            GamePlayHubContext.Clients.All.flipArrow(currentScreenLocation.ToString().ToLower());
         }
 
         private static void SetStartingPlayer()
@@ -420,12 +320,10 @@ namespace Pentathanerd.When
         public void RecordKeyStroke(bool correct, int iterator)
         {
             var connectionId = Context.ConnectionId;
-            var connectedPlayer = _connectedPlayers.FirstOrDefault(x => x.Key == connectionId);
+            var player = GetPlayer(connectionId);
 
-            if (connectedPlayer.Value == null)
+            if (player == null)
                 return;
-
-            var player = connectedPlayer.Value;
 
             lock (player)
             {
@@ -445,15 +343,17 @@ namespace Pentathanerd.When
                 }
             }
 
-            if (player.KeysPressedThisTurn == KeyPressThresholdPerTurn)
+            if (player.KeysPressedThisTurn == GameConfiguration.KeyPressThresholdPerTurn)
             {
                 ArrowTimer.Start();
             }
 
-            Clients.All.updateStats(HitPercentage, CompletionPercentage, Score);
+            var gameStats = _gameHelper.CalculateGameStats(_connectedPlayers);
+
+            Clients.All.updateStats(gameStats.Accuracy, gameStats.CompletionPercentage, gameStats.Score);
             Clients.AllExcept(_activePlayerConnectionId).updateIteratorPosition(iterator);
 
-            if (CompletionPercentage.Equals(100))
+            if (gameStats.CompletionPercentage.Equals(100))
             {
                 EndGame(true);
             }
