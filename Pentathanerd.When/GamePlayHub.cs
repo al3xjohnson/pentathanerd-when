@@ -10,16 +10,13 @@ namespace Pentathanerd.When
 {
     public class GamePlayHub : Hub
     {
-        #region Constants
         private const int AverageCharactersPerMinute = 195;
         private const int AvailableScoreBeforeBonus = 1200;
         private const int LowerBoundPlayTimeInSeconds = 2;
         private const int UpperBoundPlayTimeInSeconds = 6;
         private const int KeyPressThresholdPerTurn = 5;
         private const string DefaultTeamName = "NoNameGang";
-        #endregion
 
-        #region Statics
         private static IHubContext _gamePlayHub;
         private static readonly List<string> _connectedUsers = new List<string>();
         private static ConcurrentDictionary<string, PlayerStats> _connectedPlayers = new ConcurrentDictionary<string, PlayerStats>();
@@ -121,9 +118,7 @@ namespace Pentathanerd.When
                 return screenLocation;
             }
         }
-        #endregion
 
-        #region Hub overrides
         public override Task OnConnected()
         {
             InitializeGamePlayHubContext();
@@ -174,7 +169,6 @@ namespace Pentathanerd.When
 
             return base.OnDisconnected(stopCalled);
         }
-        #endregion
 
         private static void EndGame(bool earlyWinner)
         {
