@@ -91,6 +91,7 @@
             this.setHitPercentage("0");
             this.setScore("0");
             this.clearChangeIndicators();
+            this.setCountdownTimerText("00:00");
         },
         setCompletionPercentage: function(value) {
             var completionPercentage = $("#completionPercentage");
@@ -251,6 +252,11 @@
             var teamName = $("#teamName");
             if (teamName)
                 teamName.text(name);
+        },
+        setCountdownTimerText: function(value) {
+            var countdownTimerText = $("#countdownTimerText");
+            if (countdownTimerText)
+                countdownTimerText.text(value);
         }
     };
 
@@ -267,15 +273,15 @@
                 1000);
         },
         setTimerValue: function(timer) {
-            var countdownTimerText = $("#countdownTimerText");
             var minutes = parseInt(timer / 60, 10);
             var seconds = parseInt(timer % 60, 10);
 
             minutes = minutes < 10 ? "0" + minutes : minutes;
             seconds = seconds < 10 ? "0" + seconds : seconds;
 
-            countdownTimerText.text(minutes + ":" + seconds);
+            _gamePlayHelper.setCountdownTimerText(minutes + ":" + seconds);
 
+            var countdownTimerText = $("#countdownTimerText");
             if (minutes === "00" && parseInt(seconds) < 10) {
                 _soundEffectHelper.playSoundEffectBeep();
                 countdownTimerText.addClass("finalCountdown");
@@ -288,7 +294,6 @@
             }
         },
         transferTimeToPoints: function(remainingTime) {
-            var countdownTimerText = $("#countdownTimerText");
             pointTransferIntervalId = setInterval(function() {
                     --remainingTime;
 
@@ -298,7 +303,7 @@
                     var seconds = parseInt(remainingTime % 60, 10);
                     seconds = seconds < 10 ? "0" + seconds : seconds;
 
-                    countdownTimerText.text(minutes + ":" + seconds);
+                    _gamePlayHelper.setCountdownTimerText(minutes + ":" + seconds);
 
                     var currentScore = parseInt(_gamePlayHelper.getScore());
                     currentScore++;
