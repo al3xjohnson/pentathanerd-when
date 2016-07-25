@@ -99,21 +99,21 @@
 
             var percentage = parseFloat(value);
 
-            if (completionPercentage && percentage)
+            if (completionPercentage && percentage !== "NaN")
                 completionPercentage.text(percentage.toFixed(0));
         },
         setHitPercentage: function (value) {
             var hitPercentageText = $("#hitPercentage");
             var percentage = parseFloat(value);
 
-            if (hitPercentageText && percentage)
+            if (hitPercentageText && percentage !== "NaN")
                 hitPercentageText.text(percentage.toFixed(2));
         },
         setScore: function (value) {
             var scoreText = $("#score");
             var score = parseInt(value);
 
-            if (scoreText && score)
+            if (scoreText && score !== "NaN")
                 scoreText.text(score);
         },
         clearChangeIndicators: function () {
@@ -358,7 +358,7 @@
             this.updateGameControlsDisplay("hide");
             this.updateResetGameButtonState("disabled");
 
-            _gamePlayHelper.resetChallengeText(this);
+            _gamePlayHelper.resetChallengeText();
             _gamePlayHelper.resetStatsAndIndicators();
             _gamePlayHelper.enableScreenSelectionButtons();
         },
