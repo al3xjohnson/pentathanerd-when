@@ -10,6 +10,7 @@ namespace Pentathanerd.When
         private const int DefaultLowerBoundTurnTimeInSeconds = 2;
         private const int DefaultUpperBoundTurnTimeInSeconds = 6;
         private const int DefaultKeyPressThresholdPerTurn = 5;
+        private const bool DefaultTeamNameSelectionEnabled = false;
         private const string DefaultDefaultTeamName = "NoNameGang";
 
         public static int AverageCharactersPerMinute
@@ -54,6 +55,15 @@ namespace Pentathanerd.When
             {
                 var appSetting = GetAppSetting("KeyPressThresholdPerTurn");
                 return string.IsNullOrEmpty(appSetting) ? DefaultKeyPressThresholdPerTurn : Convert.ToInt32(appSetting);
+            }
+        }
+
+        public static bool TeamNameSelectionEnabled
+        {
+            get
+            {
+                var appSetting = GetAppSetting("TeamNameSelectionEnabled");
+                return string.IsNullOrEmpty(appSetting) ? DefaultTeamNameSelectionEnabled : Convert.ToBoolean(appSetting);
             }
         }
 

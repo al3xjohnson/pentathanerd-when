@@ -151,9 +151,16 @@ namespace Pentathanerd.When
             {
                 foreach (var connectedPlayer in _connectedPlayers)
                 {
-                    if (connectedPlayer.Value.ScreenLocation == ScreenLocation.Left)
+                    if (GameConfiguration.TeamNameSelectionEnabled)
                     {
-                        Clients.Client(connectedPlayer.Key).showTeamNameSelectionModal();
+                        if (connectedPlayer.Value.ScreenLocation == ScreenLocation.Left)
+                        {
+                            Clients.Client(connectedPlayer.Key).showTeamNameSelectionModal();
+                        }
+                    }
+                    else
+                    {
+                        Clients.Client(connectedPlayer.Key).enableStartGameButton();
                     }
                 }
             }
