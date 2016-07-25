@@ -92,6 +92,7 @@
             this.setScore("0");
             this.clearChangeIndicators();
             this.setCountdownTimerText("00:00");
+            this.setTeamName("");
         },
         setCompletionPercentage: function(value) {
             var completionPercentage = $("#completionPercentage");
