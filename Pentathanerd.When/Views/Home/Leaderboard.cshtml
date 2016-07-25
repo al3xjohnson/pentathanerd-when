@@ -1,0 +1,29 @@
+﻿@model List<Pentathanerd.When.Models.LeaderboardModel>
+@{
+    ViewBag.Title = "Haxxor Typing Leaderboard";
+}
+<h2>Leaderboard</h2>
+<div class="row">
+    <div class="col-md-1">
+        <b>Rank</b>
+    </div>
+    <div class="col-md-1">
+        <b>Score</b>
+    </div>
+    <div class="col-md-10">
+        <b>Team Name</b>
+    </div>
+</div>
+
+@{
+    var rank = 1;
+}
+@foreach (var m in Model)
+{
+    <div class="row">
+        <div class="col-md-1">@rank</div>
+        <div class="col-md-1">@m.Score</div>
+        <div class="col-md-10">@m.TeamName</div>
+    </div>
+    rank++;
+}

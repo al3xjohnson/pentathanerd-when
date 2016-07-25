@@ -16,6 +16,8 @@ namespace Pentathanerd.When
         private static readonly List<string> _connectedUsers = new List<string>();
         private static ConcurrentDictionary<string, PlayerStats> _connectedPlayers = new ConcurrentDictionary<string, PlayerStats>();
 
+        private static readonly ConcurrentDictionary<string, int> _leaderboard = new ConcurrentDictionary<string, int>();
+
         private static bool _gameIsActive;
         private static string _teamName;
         private static string _challengeText;
@@ -83,15 +85,33 @@ namespace Pentathanerd.When
 
         private static void EndGame(bool earlyWinner)
         {
+            StopGameClock();
+            StopArrowTimer();
+            AddTeamToLeaderboard(earlyWinner);
             ResetGameClient(earlyWinner);
             ResetGameValues();
+        }
+
+        private static void AddTeamToLeaderboard(bool earlyWinner)
+        {
+            var gameStats = _gameHelper.CalculateGameStats(_connectedPlayers);
+            var score = gameStats.Score;
+            if (earlyWinner)
+            {
+                score = Math.Round(score + GameClock.TimeRemainingWhenStopped, 0);
+            }
+            else if (Convert.ToInt32(GameClock.SecondsLeft) != 0)
+            {
+                return;
+            }
+            _leaderboard.TryAdd(_teamName, Convert.ToInt32(score));
         }
 
         private static void ResetGameClient(bool earlyWinner)
         {
             if (earlyWinner)
             {
-                GamePlayHubContext.Clients.All.endGameForEarlyWinner(GameClock.SecondsLeft);
+                GamePlayHubContext.Clients.All.endGameForEarlyWinner(Math.Round(GameClock.TimeRemainingWhenStopped, 0));
             }
             else
             {
@@ -110,9 +130,6 @@ namespace Pentathanerd.When
             _teamName = string.Empty;
             _challengeText = string.Empty;
             _activePlayerConnectionId = string.Empty;
-
-            StopArrowTimer();
-            StopGameClock();
         }
 
         private static void StopArrowTimer()
@@ -373,6 +390,16 @@ namespace Pentathanerd.When
             _connectedPlayers = new ConcurrentDictionary<string, PlayerStats>();
             GamePlayHubContext.Clients.All.resetGame();
             GamePlayHubContext.Clients.All.showPlayerSelectionModal();
+        }
+
+        public static void ClearLeaderboard()
+        {
+            _leaderboard.Clear();
+        }
+
+        public static ConcurrentDictionary<string, int> GetLeaderboard()
+        {
+            return _leaderboard;
         }
     }
 }
