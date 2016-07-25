@@ -49,6 +49,7 @@ namespace Pentathanerd.When
         public new void Start()
         {
             _endTime = DateTime.Now.AddMilliseconds(Interval);
+            _stopTime = DateTime.Now;
             base.Start();
         }
 

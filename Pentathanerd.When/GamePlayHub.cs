@@ -100,7 +100,7 @@ namespace Pentathanerd.When
             {
                 score = Math.Round(score + GameClock.TimeRemainingWhenStopped, 0);
             }
-            else if (Convert.ToInt32(GameClock.SecondsLeft) != 0)
+            else if (_gameIsActive)
             {
                 return;
             }
@@ -264,6 +264,7 @@ namespace Pentathanerd.When
 
         private static void GameClockOnElapsed(object sender, ElapsedEventArgs elapsedEventArgs)
         {
+            _gameIsActive = false;
             EndGame(false);
         }
 
@@ -380,6 +381,7 @@ namespace Pentathanerd.When
 
             if (gameStats.CompletionPercentage.Equals(100))
             {
+                _gameIsActive = false;
                 EndGame(true);
             }
         }
