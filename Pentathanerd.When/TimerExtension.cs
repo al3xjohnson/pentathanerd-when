@@ -6,6 +6,7 @@ namespace Pentathanerd.When
     internal class TimerExtension : Timer
     {
         private DateTime _endTime;
+        private DateTime _stopTime;
 
         public double SecondsLeft
         {
@@ -15,6 +16,11 @@ namespace Pentathanerd.When
         public double IntervalInSeconds
         {
             get { return Interval / 1000; }
+        }
+
+        public double TimeRemainingWhenStopped
+        {
+            get { return (_endTime - _stopTime).TotalSeconds; }
         }
 
         public TimerExtension()
@@ -44,6 +50,12 @@ namespace Pentathanerd.When
         {
             _endTime = DateTime.Now.AddMilliseconds(Interval);
             base.Start();
+        }
+
+        public new void Stop()
+        {
+            _stopTime = DateTime.Now;
+            base.Stop();
         }
     }
 }
