@@ -73,8 +73,7 @@
         e = e || window.event;
         var charCode = e.which;
 
-        // Prevent backspace from navigating away from the page
-        // and space from scrolling
+        // Prevent backspace from navigating away from the page and space from scrolling
         if (charCode === 8 || charCode === 32) {
             e.preventDefault();
             if (charCode === 32) {
@@ -84,6 +83,7 @@
                 $(document).trigger(keyPressEvent);
             }
         }
+        return true;
     }
 
     document.onkeypress = function(e) {
@@ -155,6 +155,10 @@
 
     gamePlayHub.client.enableStartGameButton = function() {
         gameController.updateStartGameButtonState("enabled");
+    }
+
+    gamePlayHub.client.disableStartGameButton = function () {
+        gameController.updateStartGameButtonState("disabled");
     }
 
     gamePlayHub.client.enableResetGameButton = function () {

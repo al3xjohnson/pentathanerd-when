@@ -65,6 +65,7 @@ namespace Pentathanerd.When
 
                 if (_connectedPlayers.Count < 2)
                 {
+                    Clients.All.disableStartGameButton();
                     EndGame(false);
                 }
             }
