@@ -8,5 +8,13 @@ namespace Pentathanerd.When.Controllers
         { 
             return View();
         }
+
+        public ActionResult HardReset(string resetKey)
+        {
+            if (resetKey == "hardToGuessResetKey123")
+                GamePlayHub.HardReset();
+
+            return RedirectToAction("Index");
+        }
     }
 }

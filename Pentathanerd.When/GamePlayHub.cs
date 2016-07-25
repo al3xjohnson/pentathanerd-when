@@ -366,5 +366,13 @@ namespace Pentathanerd.When
                 EndGame(true);
             }
         }
+
+        public static void HardReset()
+        {
+            EndGame(false);
+            _connectedPlayers = new ConcurrentDictionary<string, PlayerStats>();
+            GamePlayHubContext.Clients.All.resetGame();
+            GamePlayHubContext.Clients.All.showPlayerSelectionModal();
+        }
     }
 }
