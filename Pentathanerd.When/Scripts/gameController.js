@@ -258,6 +258,12 @@
             var countdownTimerText = $("#countdownTimerText");
             if (countdownTimerText)
                 countdownTimerText.text(value);
+        },
+        clearTeamNameInput: function() {
+            var teamNameInput = $("#teamNameInput");
+
+            if (teamNameInput)
+                teamNameInput.val("");
         }
     };
 
@@ -361,6 +367,7 @@
             _gamePlayHelper.resetChallengeText();
             _gamePlayHelper.resetStatsAndIndicators();
             _gamePlayHelper.enableScreenSelectionButtons();
+            _gamePlayHelper.clearTeamNameInput();
         },
         updateGameControlsDisplay: function(action) {
             var gameControls = $("#gameControls");
