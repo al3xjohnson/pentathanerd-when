@@ -5,8 +5,8 @@ namespace Pentathanerd.When
 {
     internal static class GameConfiguration
     {
-        private const int DefaultAverageCharactersPerMinute = 195;
-        private const int DefaultAvailableScoreBeforeBonus = 1200;
+        private const int DefaultAverageCharactersPerMinute = 215;
+        private const int DefaultAvailableScoreBeforeBonus = 1000;
         private const int DefaultLowerBoundTurnTimeInSeconds = 2;
         private const int DefaultUpperBoundTurnTimeInSeconds = 6;
         private const int DefaultKeyPressThresholdPerTurn = 5;
